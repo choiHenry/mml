@@ -1,2 +1,2 @@
-# mml-book
-This repository contains mainly ipynb files generated studying mml-book.
+# mml
+This repository contains python objects generated translating mathematical objects related to machine learning.
