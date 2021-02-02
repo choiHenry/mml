@@ -78,23 +78,11 @@ def orthogonal(arr1, arr2):
 def normalize(v):
     return v/l2_norm(v)
 
-# def gram_schmidt(arr):
-#     arr1 = np.array(arr)
-#     for i in range(arr1.shape[1]):
-#         if (i == 0):
-#             u = normalize(arr1[:, i])
-#         else:
-#             v = arr1[:, i]
-#             s = v.copy()
-#             for j in range(i):
-#                 if len(u.shape) == 1:
-#                     v = v - proj(s, u)
-#                 else:
-#                     v = v - proj(s, u[:, j])
-#             v = normalize(v)
-#             u = np.c_[u, v]
-#     return u
-
+def inner_product(x, y, A):
+    x_arr = np.array(x)
+    y_arr = np.array(y)
+    A_arr = np.array(A)
+    return np.matmul(np.matmul(x_arr, A_arr), y_arr.T)
 def proj_matrix(U):
     U_arr = np.array(U)
 
@@ -109,14 +97,17 @@ def gram_schmidt(B):
     B_arr = np.array(B)
     for i in range(B_arr.shape[1]):
         if i == 0:
-            U = B_arr[:, i]
+            U = normalize(B_arr[:, i])
             U = U.reshape(U.shape[0], -1)
         else:
             U_j = normalize(B_arr[:, i] - proj(B_arr[:, i], U))
             U = np.c_[U, U_j]
     return U
 
-
+def rotate(x, deg):
+    x_arr = np.array(x)
+    rad = deg*np.pi/180
+    return np.matmul(np.array([[np.cos(rad), -np.sin(rad)], [np.sin(rad), np.cos(rad)]]), x_arr)
 
 class LinearRegression:
 
