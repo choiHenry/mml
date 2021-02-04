@@ -1,6 +1,8 @@
 import numpy as np
 from sympy import *
-
+from sympy.abc import x, y
+import matplotlib.pyplot as plt
+import scipy
 
 def get_m0(n: int):
     """
@@ -108,6 +110,109 @@ def rotate(x, deg):
     x_arr = np.array(x)
     rad = deg*np.pi/180
     return np.matmul(np.array([[np.cos(rad), -np.sin(rad)], [np.sin(rad), np.cos(rad)]]), x_arr)
+
+def det_laplace_expansion(A, checked=False):
+    arr = np.array(A)
+    if not checked:
+        if len(arr.shape) == 1:
+            assert arr.shape[0] == 1, "Input matrix is not square."
+        else:
+            assert arr.shape[0] == arr.shape[1], "Input matrix is not square."
+    check = True
+    if (arr.shape[0] == 1):
+        return arr
+    else:
+        det = 0
+        for i in range(arr.shape[0]):
+            row_index = np.array([x for x in range(arr.shape[0]) if x != i])[:,np.newaxis]
+            print(arr.shape[0])
+            print(row_index)
+            column_index = np.array([x for x in range(arr.shape[1]) if x != 0])
+            print(column_index)
+            print(arr[row_index, column_index])
+            det += ((-1)**i) * det_laplace_expansion(arr[row_index, column_index], checked)
+        return det
+
+def trace(A):
+    arr = np.array(A)
+    return np.trace(A)
+
+def charpoly(A):
+    M = Matrix(A)
+    return M.charpoly(x).as_expr()
+
+def eig(A):
+    M = np.array(A)
+    return np.linalg.eig(M)
+
+def cholesky(lA):
+    arrA = np.array(lA)
+    return np.linalg.cholesky(arrA)
+
+
+def plotVectors(vecs, cols, alpha=1):
+    """
+    Plot set of vectors.
+
+    Parameters
+    ----------
+    vecs : array-like
+        Coordinates of the vectors to plot. Each vectors is in an array. For
+        instance: [[1, 3], [2, 2]] can be used to plot 2 vectors.
+    cols : array-like
+        Colors of the vectors. For instance: ['red', 'blue'] will display the
+        first vector in red and the second in blue.
+    alpha : float
+        Opacity of vectors
+
+    Returns:
+
+    fig : instance of matplotlib.figure.Figure
+        The figure of the vectors
+    """
+    plt.figure()
+    plt.axvline(x=0, color='#A9A9A9', zorder=0)
+    plt.axhline(y=0, color='#A9A9A9', zorder=0)
+
+    for i in range(len(vecs)):
+        x = np.concatenate([[0,0],vecs[i]])
+        plt.quiver([x[0]],
+                   [x[1]],
+                   [x[2]],
+                   [x[3]],
+                   angles='xy', scale_units='xy', scale=1, color=cols[i],
+                   alpha=alpha)
+
+def eigen_decomposition(lA):
+    arrA = np.array(lA)
+    results = eig(arrA)
+    assert det(results[1]) != 0, "Defective matrix cannot be diagonalized."
+    return (results[1], np.diag(results[0]), inv(results[1]))
+
+def svd(lA):
+    arrA = np.array(lA)
+    U, S, VT = scipy.linalg.svd(arrA)
+    Sigma = np.zeros(arrA.shape)
+    k = min(arrA.shape)
+    Sigma[:k, :k] = np.diag(S)
+    return U, Sigma, VT
+
+def pinv(lA):
+    arrA = np.array(A)
+    U, s, VT = np.linalg.svd(A)
+    d = 1.0/s
+    D = np.zeros(A.shape)
+    k = min(A.shape)
+    D[:k, :k] = np.diag(d)
+    return (VT.T).dot((D.T).dot(U.T))
+
+def matrix_approximate(lA, n_components):
+    arrA = np.array(lA)
+    U, Sigma, VT = svd(arrA)
+    Sigmak = Sigma[:, :n_components]
+    VTk = VT[:n_components, :]
+    print(U.shape, Sigmak.shape, VTk.shape)
+    return U.dot(Sigmak.dot(VTk))
 
 class LinearRegression:
 
